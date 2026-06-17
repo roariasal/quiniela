@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T14:50:16",
+  "updated": "2026-06-17T14:53:46",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -225,6 +225,17 @@
       "t4": "Over de 3 goles",
       "v4": "no",
       "marcador": "1-1"
+    },
+    "66": {
+      "t1": "Gol en los primeros 13 minutos si o no",
+      "v1": "Si",
+      "t2": "Goles de tiro de esquina Si o No, vale Doble",
+      "v2": "Si",
+      "t3": "Habrá Hat Trick?",
+      "v3": "No",
+      "t4": "",
+      "v4": "",
+      "marcador": "3-0"
     }
   }
 }
