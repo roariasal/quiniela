@@ -109,3 +109,18 @@ def _clean_vars(v):
 
 def to_json(payload):
     return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def entries_with_data(state, bracket=None):
+    """Devuelve la lista de entries (solo partidos con datos), para selector."""
+    payload = build_share_payload(state, bracket, only_with_data=True)
+    return payload["partidos"]
+
+
+def entry_for_match(state, bracket, match_n):
+    """Devuelve la entry de un partido especifico (con o sin datos)."""
+    payload = build_share_payload(state, bracket, only_with_data=False)
+    for e in payload["partidos"]:
+        if str(e["n"]) == str(match_n):
+            return e
+    return None

@@ -121,6 +121,12 @@ def variable_panel(match_n, titulo_partido, subtitulo=""):
         autosave()
         st.success("Guardado.")
 
+    with st.expander("📤 Compartir este partido"):
+        _, bracket = compute()
+        entry = export_share.entry_for_match(d, bracket, n)
+        if entry:
+            _share_match_ui(entry, d.get("owner", ""))
+
 
 # ----------------------------------------------------------------------
 # TAB: Fase de Grupos
@@ -290,18 +296,37 @@ def _third_assignment_ui(standings):
 # ----------------------------------------------------------------------
 # TAB: Compartir (JSON WhatsApp)
 # ----------------------------------------------------------------------
+def _share_match_ui(entry, jugador):
+    """Render compartido: imagen PNG + texto WhatsApp para un partido."""
+    import card_render
+    png = card_render.png_card(entry, jugador)
+    st.image(png, caption=None, width='stretch')
+    st.download_button(
+        "⬇️ Descargar imagen (PNG)", png,
+        file_name=f"quiniela_partido_{entry['n']}.png", mime="image/png",
+        key=f"png_{entry['n']}")
+    txt = card_render.whatsapp_text(entry, jugador)
+    st.markdown("**Texto para WhatsApp** (cópialo):")
+    st.code(txt, language=None)
+
+
 def tab_compartir():
     d = get()
     _, bracket = compute()
     st.subheader("Compartir con el administrador")
-    only = st.checkbox("Solo partidos con datos capturados", value=True)
-    payload = export_share.build_share_payload(d, bracket, only_with_data=only)
-    js = export_share.to_json(payload)
-    st.caption(f"{len(payload['partidos'])} partido(s) en el envío.")
-    st.code(js, language="json")
-    st.download_button("⬇️ Descargar JSON", js,
-                       file_name="quiniela_envio.json", mime="application/json")
-    st.caption("Copia el bloque de arriba y pégalo en WhatsApp, o descarga el archivo.")
+
+    entries = export_share.entries_with_data(d, bracket)
+    if not entries:
+        st.info("Aún no has capturado datos en ningún partido. "
+                "Marca una predicción o llena las variables de un partido.")
+        return
+
+    # selector de un partido a la vez
+    def _lbl(e):
+        return f"#{e['n']} · {e['partido']} ({e['fase']})"
+    idx = st.selectbox("Partido", range(len(entries)),
+                       format_func=lambda i: _lbl(entries[i]))
+    _share_match_ui(entries[idx], d.get("owner", ""))
 
 
 # ----------------------------------------------------------------------
@@ -328,6 +353,11 @@ def sidebar():
     st.sidebar.divider()
     if st.sidebar.button("💾 Guardar todo ahora"):
         autosave(); st.sidebar.success("Guardado.")
+
+    st.sidebar.caption("📤 Para compartir un partido con el admin, usa la "
+                       "pestaña **Compartir** o el botón dentro de cada partido.")
+
+    st.sidebar.divider()
     up = st.sidebar.file_uploader("Importar estado (JSON)", type="json")
     if up is not None:
         import json
