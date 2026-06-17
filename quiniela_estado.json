@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T15:39:41",
+  "updated": "2026-06-17T15:39:44",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -225,7 +225,8 @@
   "ko_winners": {
     "73": "México",
     "76": "Brasil",
-    "74": "Alemania"
+    "74": "Alemania",
+    "75": "Países Bajos"
   },
   "variables": {
     "1": {
