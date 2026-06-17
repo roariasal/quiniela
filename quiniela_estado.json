@@ -1,12 +1,15 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T01:55:09",
+  "updated": "2026-06-17T01:55:17",
   "group_results": {
     "1": {
       "outcome": "1"
     },
     "2": {
       "outcome": "X"
+    },
+    "3": {
+      "outcome": "1"
     }
   },
   "third_assignments": {},
