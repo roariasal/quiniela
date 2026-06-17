@@ -16,26 +16,61 @@ from PIL import Image, ImageDraw, ImageFont
 from flags import flag, with_flag
 
 # --- fuentes ---
-def _find_font(patterns):
-    for p in patterns:
-        hits = glob.glob(p, recursive=True)
-        if hits:
-            return hits[0]
+def _find_font(names):
+    """Busca un archivo de fuente por nombre en las rutas típicas de Linux.
+    `names` es una lista de nombres de archivo (sin ruta), en orden de preferencia."""
+    roots = [
+        "/usr/share/fonts",
+        "/usr/local/share/fonts",
+        os.path.expanduser("~/.fonts"),
+        "/Library/Fonts",            # macOS
+        "/System/Library/Fonts",     # macOS
+        "C:/Windows/Fonts",          # Windows
+    ]
+    for name in names:
+        for root in roots:
+            hits = glob.glob(os.path.join(root, "**", name), recursive=True)
+            if hits:
+                return hits[0]
     return None
 
-_SANS = _find_font(["/usr/share/fonts/**/DejaVuSans.ttf"]) or \
-        _find_font(["/usr/share/fonts/**/LiberationSans-Regular.ttf"])
-_SANS_BOLD = _find_font(["/usr/share/fonts/**/DejaVuSans-Bold.ttf"]) or \
-             _find_font(["/usr/share/fonts/**/LiberationSans-Bold.ttf"])
-_EMOJI = _find_font(["/usr/share/fonts/**/NotoColorEmoji.ttf"])
+
+_SANS = _find_font([
+    "DejaVuSans.ttf", "LiberationSans-Regular.ttf",
+    "NotoSans-Regular.ttf", "Arial.ttf", "arial.ttf",
+])
+_SANS_BOLD = _find_font([
+    "DejaVuSans-Bold.ttf", "LiberationSans-Bold.ttf",
+    "NotoSans-Bold.ttf", "Arial-Bold.ttf", "arialbd.ttf",
+]) or _SANS  # si no hay bold, usa el regular
+_EMOJI = _find_font(["NotoColorEmoji.ttf"])
 
 # NotoColorEmoji en Pillow SOLO carga a tamaño 109; se reescala despues.
 _EMOJI_NATIVE = 109
 
+# cache simple de fuentes ya cargadas
+_FONT_CACHE = {}
+
 
 def _font(bold=False, size=22):
+    key = (bold, size)
+    if key in _FONT_CACHE:
+        return _FONT_CACHE[key]
     path = _SANS_BOLD if bold else _SANS
-    return ImageFont.truetype(path, size)
+    try:
+        if path:
+            f = ImageFont.truetype(path, size)
+        else:
+            # último recurso: fuente embebida de Pillow (siempre disponible,
+            # aunque no escala bien ni soporta acentos perfectamente)
+            f = ImageFont.load_default(size=size)
+    except Exception:
+        try:
+            f = ImageFont.load_default(size=size)
+        except Exception:
+            f = ImageFont.load_default()
+    _FONT_CACHE[key] = f
+    return f
 
 
 def _flag_image(team, target_h):
