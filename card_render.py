@@ -43,10 +43,7 @@ _SANS_BOLD = _find_font([
     "DejaVuSans-Bold.ttf", "LiberationSans-Bold.ttf",
     "NotoSans-Bold.ttf", "Arial-Bold.ttf", "arialbd.ttf",
 ]) or _SANS  # si no hay bold, usa el regular
-_EMOJI = _find_font(["NotoColorEmoji.ttf"])
-
-# NotoColorEmoji en Pillow SOLO carga a tamaño 109; se reescala despues.
-_EMOJI_NATIVE = 109
+_EMOJI = None  # las banderas ahora son PNG (assets/flags), no emoji
 
 # cache simple de fuentes ya cargadas
 _FONT_CACHE = {}
@@ -74,25 +71,10 @@ def _font(bold=False, size=22):
 
 
 def _flag_image(team, target_h):
-    """Devuelve una imagen RGBA de la bandera del equipo, escalada a target_h,
-    o None si no hay bandera o no hay fuente emoji."""
-    fl = flag(team)
-    if not fl or not _EMOJI:
-        return None
-    try:
-        ef = ImageFont.truetype(_EMOJI, _EMOJI_NATIVE)
-        tmp = Image.new("RGBA", (160, 160), (0, 0, 0, 0))
-        d = ImageDraw.Draw(tmp)
-        d.text((0, 0), fl, font=ef, embedded_color=True)
-        bbox = tmp.getbbox()
-        if not bbox:
-            return None
-        cropped = tmp.crop(bbox)
-        w, h = cropped.size
-        scale = target_h / h
-        return cropped.resize((max(1, int(w * scale)), target_h), Image.LANCZOS)
-    except Exception:
-        return None
+    """Devuelve una imagen RGBA de la bandera (PNG) escalada a target_h,
+    o None si no hay bandera disponible."""
+    from flags import flag_png
+    return flag_png(team, target_h)
 
 
 # ---------------------------------------------------------------------------
@@ -175,6 +157,40 @@ _BLUE_BG = (227, 240, 250)
 _BLUE_INK = (12, 68, 124)
 
 
+def _draw_banner(img, width, bh):
+    """Dibuja un banner superior original con motivo de cancha de fútbol
+    estilizada: degradado verde→azul y líneas de campo sutiles a la derecha.
+    No usa fotos ni marcas registradas. El lado izquierdo se mantiene limpio
+    para que el texto del encabezado sea legible."""
+    banner = Image.new("RGB", (width, bh), _GREEN)
+    bd = ImageDraw.Draw(banner)
+    # degradado diagonal verde -> azul
+    c0 = (10, 135, 84)
+    c1 = (28, 100, 150)
+    for x in range(width):
+        t = x / width
+        r = int(c0[0] + (c1[0] - c0[0]) * t)
+        g = int(c0[1] + (c1[1] - c0[1]) * t)
+        b = int(c0[2] + (c1[2] - c0[2]) * t)
+        bd.line([(x, 0), (x, bh)], fill=(r, g, b))
+    # líneas de cancha sutiles, dibujadas en una capa semitransparente
+    overlay = Image.new("RGBA", (width, bh), (0, 0, 0, 0))
+    od = ImageDraw.Draw(overlay)
+    line_col = (255, 255, 255, 70)  # blanco translúcido
+    lw = 3
+    # círculo central desplazado a la derecha (lejos del texto)
+    cr = int(bh * 0.42)
+    cx, cy = int(width * 0.74), bh // 2
+    od.ellipse([cx - cr, cy - cr, cx + cr, cy + cr], outline=line_col, width=lw)
+    od.line([(cx, 0), (cx, bh)], fill=line_col, width=lw)
+    od.ellipse([cx - 4, cy - 4, cx + 4, cy + 4], fill=line_col)
+    # área a la derecha del todo
+    aw, ah = int(width * 0.07), int(bh * 0.6)
+    od.rectangle([width - aw, cy - ah // 2, width, cy + ah // 2], outline=line_col, width=lw)
+    banner = Image.alpha_composite(banner.convert("RGBA"), overlay).convert("RGB")
+    img.paste(banner, (0, 0))
+
+
 def png_card(entry, jugador="", width=720):
     s = match_summary(entry)
     local, _, visit = s["partido"].partition(" vs ")
@@ -182,9 +198,8 @@ def png_card(entry, jugador="", width=720):
     pad = 34
     img = Image.new("RGB", (width, 1400), _BG)
     d = ImageDraw.Draw(img)
-    y = pad
 
-    f_head = _font(False, 20)
+    f_head = _font(True, 22)
     f_title = _font(True, 30)
     f_meta = _font(False, 19)
     f_label = _font(False, 20)
@@ -192,14 +207,12 @@ def png_card(entry, jugador="", width=720):
     f_score = _font(True, 40)
     f_pill = _font(True, 21)
 
-    # encabezado
-    head = "⚽ Quiniela Mundial 2026" + (f" — {jugador}" if jugador else "")
-    # quitamos el emoji del balon en imagen (evita doble-render); usamos texto
-    head = head.replace("⚽ ", "")
-    d.text((pad, y), head, font=f_head, fill=_GREEN)
-    y += 40
-    d.line([(pad, y), (width - pad, y)], fill=_LINE, width=2)
-    y += 22
+    # banner superior con motivo de cancha
+    bh = 90
+    _draw_banner(img, width, bh)
+    head = "Quiniela Mundial 2026" + (f"  —  {jugador}" if jugador else "")
+    d.text((pad, bh // 2 - 14), head, font=f_head, fill=(255, 255, 255))
+    y = bh + 22
 
     # titulo del partido con banderas
     fh = 38

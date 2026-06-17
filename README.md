@@ -78,3 +78,11 @@ El ranking de los 12 terceros es automático (reglas FIFA por puntos). La
 asignación de *cuál* tercero va a *cuál* llave es manual entre los 8
 clasificados, porque la tabla oficial FIFA de asignación para el formato de
 12 grupos depende del sorteo y no es determinista solo con los puntos.
+
+
+## Banderas e imágenes
+Las banderas de la tarjeta PNG están en `assets/flags/` como imágenes PNG
+(derivadas de flag-icons, licencia MIT — ver `assets/flags/LICENSE.txt`).
+No dependen de fuentes del sistema, así que se ven nítidas en cualquier
+entorno. El `packages.txt` instala `fonts-dejavu-core` solo para los acentos
+del texto.
