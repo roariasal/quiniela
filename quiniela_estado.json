@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T14:57:31",
+  "updated": "2026-06-17T15:00:18",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -265,6 +265,17 @@
       "t4": "",
       "v4": "",
       "marcador": "1 - 0"
+    },
+    "68": {
+      "t1": "En que minuto cae el primer gol? vale triple",
+      "v1": "9",
+      "t2": "Mas de 1 gol en los ultimos 16 minutos",
+      "v2": "No",
+      "t3": "Que jugador anota el primer gol?",
+      "v3": "Antoine Semenyo",
+      "t4": "",
+      "v4": "",
+      "marcador": "2-1"
     }
   }
 }
