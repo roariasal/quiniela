@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T02:11:37",
+  "updated": "2026-06-17T02:11:39",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -22,6 +22,9 @@
     },
     "7": {
       "outcome": "1"
+    },
+    "8": {
+      "outcome": "2"
     }
   },
   "third_assignments": {},
