@@ -14,8 +14,14 @@ ROUND_LABEL = {
 
 
 def _has_variable_data(v):
-    return v and any((v.get(k) or "").strip()
-                     for k in ("v1", "v2", "v3", "v4", "marcador"))
+    if not v:
+        return False
+    if (v.get("marcador") or "").strip():
+        return True
+    for i in range(1, 5):
+        if (v.get(f"t{i}") or "").strip() or (v.get(f"v{i}") or "").strip():
+            return True
+    return False
 
 
 def build_share_payload(state, bracket=None, only_with_data=True):
@@ -51,7 +57,7 @@ def build_share_payload(state, bracket=None, only_with_data=True):
         if res and res.get("outcome"):
             entry["prediccion"] = res["outcome"]  # 1 / X / 2
         if _has_variable_data(var):
-            entry["variables"] = _clean_vars(var)
+            entry.update(_clean_vars(var))
         payload["partidos"].append(entry)
 
     # Fase eliminatoria
@@ -76,18 +82,28 @@ def build_share_payload(state, bracket=None, only_with_data=True):
         if win:
             entry["ganador"] = win
         if _has_variable_data(var):
-            entry["variables"] = _clean_vars(var)
+            entry.update(_clean_vars(var))
         payload["partidos"].append(entry)
 
     return payload
 
 
 def _clean_vars(v):
+    """Empareja título + valor por variable. Estructura en el JSON:
+       {"variables": [{"titulo": "...", "valor": "..."}, ...], "marcador": "..."}
+    Solo incluye variables que tengan título o valor."""
     out = {}
-    for k in ("v1", "v2", "v3", "v4", "marcador"):
-        val = (v.get(k) or "").strip()
-        if val:
-            out[k] = val
+    items = []
+    for i in range(1, 5):
+        t = (v.get(f"t{i}") or "").strip()
+        val = (v.get(f"v{i}") or "").strip()
+        if t or val:
+            items.append({"titulo": t, "valor": val})
+    if items:
+        out["variables"] = items
+    mar = (v.get("marcador") or "").strip()
+    if mar:
+        out["marcador"] = mar
     return out
 
 

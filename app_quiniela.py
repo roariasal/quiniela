@@ -62,28 +62,61 @@ def compute():
 # ----------------------------------------------------------------------
 # Panel de variables (mango derecho) — estructura fija v1..v4 + marcador
 # ----------------------------------------------------------------------
-def variable_panel(match_n, titulo, subtitulo=""):
+# ----------------------------------------------------------------------
+# Panel de variables (mango derecho)
+# Cada variable: TITULO editable por partido (lo que pide el organizador) +
+# VALOR que predice el jugador. Estructura fija: v1..v4 + marcador.
+# ----------------------------------------------------------------------
+def _variable_field(n, idx, v):
+    """Renderiza 'Variable N :  [titulo]' y debajo el campo de valor.
+    Devuelve (titulo, valor)."""
+    tk, vk = f"t{idx}", f"v{idx}"
+    lab, fld = st.columns([0.42, 0.58])
+    with lab:
+        st.markdown(f"**Variable {idx}** :")
+    with fld:
+        titulo = st.text_input(
+            f"titulo_{idx}", value=v.get(tk, ""), key=f"{tk}_{n}",
+            label_visibility="collapsed",
+            placeholder="título (ej. Goleador)")
+    valor = st.text_input(
+        f"valor_{idx}", value=v.get(vk, ""), key=f"{vk}_{n}",
+        label_visibility="collapsed",
+        placeholder=f"tu predicción para {titulo}" if titulo else "tu predicción")
+    return titulo, valor
+
+
+def variable_panel(match_n, titulo_partido, subtitulo=""):
     d = get()
     n = str(match_n)
     v = d["variables"].get(n, {})
-    st.markdown(f"#### 📋 {titulo}")
+    st.markdown(f"#### 📋 {titulo_partido}")
     if subtitulo:
         st.caption(subtitulo)
-    st.caption("Las variables las define el organizador ese día. Texto libre.")
+    st.caption("Escribe el título de cada variable (lo que pide el organizador "
+               "ese día) y debajo tu predicción.")
 
     c1, c2 = st.columns(2)
     with c1:
-        v1 = st.text_input("Variable 1", value=v.get("v1", ""), key=f"v1_{n}")
-        v2 = st.text_input("Variable 2", value=v.get("v2", ""), key=f"v2_{n}")
-        marcador = st.text_input("Marcador", value=v.get("marcador", ""),
-                                 key=f"mar_{n}", placeholder="ej. 2-1")
+        t1, v1 = _variable_field(n, 1, v)
+        st.write("")
+        t2, v2 = _variable_field(n, 2, v)
     with c2:
-        v3 = st.text_input("Variable 3", value=v.get("v3", ""), key=f"v3_{n}")
-        v4 = st.text_input("Variable 4", value=v.get("v4", ""), key=f"v4_{n}")
+        t3, v3 = _variable_field(n, 3, v)
+        st.write("")
+        t4, v4 = _variable_field(n, 4, v)
+
+    st.markdown("**Marcador** :")
+    marcador = st.text_input("Marcador", value=v.get("marcador", ""),
+                             key=f"mar_{n}", placeholder="ej. 2-1",
+                             label_visibility="collapsed")
 
     if st.button("💾 Guardar variables", key=f"save_{n}", type="primary"):
-        d["variables"][n] = {"v1": v1, "v2": v2, "v3": v3, "v4": v4,
-                             "marcador": marcador}
+        d["variables"][n] = {
+            "t1": t1, "v1": v1, "t2": t2, "v2": v2,
+            "t3": t3, "v3": v3, "t4": t4, "v4": v4,
+            "marcador": marcador,
+        }
         autosave()
         st.success("Guardado.")
 
