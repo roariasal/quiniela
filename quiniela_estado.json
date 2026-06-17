@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T01:55:32",
+  "updated": "2026-06-17T02:08:50",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -23,5 +23,17 @@
   },
   "third_assignments": {},
   "ko_winners": {},
-  "variables": {}
+  "variables": {
+    "1": {
+      "t1": "Gol de Raul Jimenez",
+      "v1": "si",
+      "t2": "Grito de Puto si o no?",
+      "v2": "no",
+      "t3": "Habrá gol anulado por el var?",
+      "v3": "no",
+      "t4": "Gol en los ultimos 8 minutos",
+      "v4": "no",
+      "marcador": "3-1"
+    }
+  }
 }
