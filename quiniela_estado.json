@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T15:39:44",
+  "updated": "2026-06-17T15:40:04",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -220,7 +220,8 @@
     }
   },
   "third_assignments": {
-    "74:t2": "Suecia"
+    "74:t2": "Suecia",
+    "77:t2": "Paraguay"
   },
   "ko_winners": {
     "73": "México",
