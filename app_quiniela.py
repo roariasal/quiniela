@@ -18,6 +18,7 @@ import streamlit as st
 import engine
 import storage
 import export_share
+from flags import with_flag, flag
 from wc_data import GROUP_MATCHES, GROUPS, KNOCKOUT
 
 st.set_page_config(page_title="Quiniela Mundial 2026", page_icon="⚽", layout="wide")
@@ -139,11 +140,11 @@ def tab_grupos():
         for m in [x for x in GROUP_MATCHES if x["group"] == sel_group]:
             n = str(m["n"])
             cur = d["group_results"].get(n, {})
-            label = f"**#{m['n']}** · {m['local']} vs {m['visit']}  \n_{m['fecha']} · {m['sede']}_"
+            label = f"**#{m['n']}** · {with_flag(m['local'])} vs {with_flag(m['visit'])}  \n_{m['fecha']} · {m['sede']}_"
             st.markdown(label)
             cols = st.columns([1, 1, 1, 1.4])
             outcome = cur.get("outcome")
-            opts = [("1", f"1 · {m['local']}"), ("X", "X · Empate"), ("2", f"2 · {m['visit']}")]
+            opts = [("1", f"1 · {flag(m['local'])}"), ("X", "X · Empate"), ("2", f"2 · {flag(m['visit'])}")]
             for i, (code, txt) in enumerate(opts):
                 with cols[i]:
                     btype = "primary" if outcome == code else "secondary"
@@ -162,7 +163,7 @@ def tab_grupos():
         sel = st.session_state.selected
         if sel and sel[0] == "grupo":
             m = next(x for x in GROUP_MATCHES if str(x["n"]) == sel[1])
-            variable_panel(m["n"], f"#{m['n']} · {m['local']} vs {m['visit']}",
+            variable_panel(m["n"], f"#{m['n']} · {with_flag(m['local'])} vs {with_flag(m['visit'])}",
                            f"{m['fecha']} · {m['sede']}")
         else:
             st.info("Selecciona **Variables ▸** en un partido para capturar las variables del día.")
@@ -181,7 +182,7 @@ def tab_posiciones():
         with cols[i % 3]:
             st.markdown(f"**Grupo {g}**")
             rows = standings[g]
-            table = [{"Pos": j + 1, "Equipo": r["team"], "PJ": r["PJ"],
+            table = [{"Pos": j + 1, "Equipo": with_flag(r["team"]), "PJ": r["PJ"],
                       "Pts": r["PTS"], "DG": r["DG"], "GF": r["GF"]}
                      for j, r in enumerate(rows)]
             st.dataframe(table, hide_index=True, width='stretch')
@@ -191,7 +192,7 @@ def tab_posiciones():
     thirds = engine.rank_third_places(standings)
     qual = engine.qualified_thirds(standings)
     qual_teams = {t["team"] for t in qual}
-    table = [{"#": i + 1, "Grupo": t["group"], "Equipo": t["team"],
+    table = [{"#": i + 1, "Grupo": t["group"], "Equipo": with_flag(t["team"]),
               "Pts": t["PTS"], "DG": t["DG"], "GF": t["GF"],
               "Clasifica": "✅" if t["team"] in qual_teams else ""}
              for i, t in enumerate(thirds)]
@@ -218,8 +219,8 @@ def tab_eliminatoria(round_code):
     with left:
         for b in matches:
             n = str(b["n"])
-            t1 = b["t1"] or f"⟨{b['t1_raw']}⟩"
-            t2 = b["t2"] or f"⟨{b['t2_raw']}⟩"
+            t1 = with_flag(b["t1"]) if b["t1"] else f"⟨{b['t1_raw']}⟩"
+            t2 = with_flag(b["t2"]) if b["t2"] else f"⟨{b['t2_raw']}⟩"
             st.markdown(f"**#{b['n']}** · {t1} vs {t2}  \n_{b['fecha']} · {b['sede']}_")
 
             if b["resolved"]:
@@ -227,11 +228,11 @@ def tab_eliminatoria(round_code):
                 win = b["winner"]
                 with cols[0]:
                     bt = "primary" if win == b["t1"] else "secondary"
-                    if st.button(f"🏆 {b['t1']}", key=f"w1_{n}", type=bt, width='stretch'):
+                    if st.button(f"🏆 {with_flag(b['t1'])}", key=f"w1_{n}", type=bt, width='stretch'):
                         d["ko_winners"][n] = b["t1"]; autosave(); st.rerun()
                 with cols[1]:
                     bt = "primary" if win == b["t2"] else "secondary"
-                    if st.button(f"🏆 {b['t2']}", key=f"w2_{n}", type=bt, width='stretch'):
+                    if st.button(f"🏆 {with_flag(b['t2'])}", key=f"w2_{n}", type=bt, width='stretch'):
                         d["ko_winners"][n] = b["t2"]; autosave(); st.rerun()
                 with cols[2]:
                     if st.button("Variables ▸", key=f"selk_{n}", width='stretch'):
@@ -245,7 +246,8 @@ def tab_eliminatoria(round_code):
         if sel and sel[0] == "ko":
             b = bmap.get(sel[1])
             if b:
-                t1 = b["t1"] or b["t1_raw"]; t2 = b["t2"] or b["t2_raw"]
+                t1 = with_flag(b["t1"]) if b["t1"] else b["t1_raw"]
+                t2 = with_flag(b["t2"]) if b["t2"] else b["t2_raw"]
                 variable_panel(b["n"], f"#{b['n']} · {t1} vs {t2}",
                                f"{b['fecha']} · {b['sede']}")
         else:
@@ -261,8 +263,8 @@ def _third_assignment_ui(standings):
             return
         st.caption("Elige qué tercero clasificado va en cada llave que lo requiere "
                    "(solo entre los 8 mejores).")
-        options = ["—"] + [f"{t['team']} (3° {t['group']})" for t in qual]
-        team_by_label = {f"{t['team']} (3° {t['group']})": t["team"] for t in qual}
+        options = ["—"] + [f"{with_flag(t['team'])} (3° {t['group']})" for t in qual]
+        team_by_label = {f"{with_flag(t['team'])} (3° {t['group']})": t["team"] for t in qual}
         slots = engine.third_slots_needed()
         changed = False
         for n, side, opp in slots:
@@ -363,12 +365,39 @@ def check_password():
     return False
 
 
+def inject_theme():
+    """Estilo Mundial — paleta deportiva azul/verde + banner."""
+    st.markdown("""
+    <style>
+      /* Banner del torneo */
+      .wc-banner {
+        background: linear-gradient(120deg, #0A8754 0%, #0E9F6E 45%, #2E86C1 100%);
+        color: #fff; border-radius: 14px; padding: 18px 24px; margin-bottom: 8px;
+        box-shadow: 0 4px 14px rgba(10,135,84,.25);
+      }
+      .wc-banner h1 { color:#fff; margin:0; font-size:1.9rem; letter-spacing:.5px; }
+      .wc-banner p  { color:#EAF7F1; margin:.2rem 0 0; font-size:.95rem; }
+      /* Pestañas activas en verde césped */
+      .stTabs [aria-selected="true"] { color:#0A8754 !important; }
+      .stTabs [data-baseweb="tab-highlight"] { background:#0A8754 !important; }
+      /* Tarjeta de partido más legible */
+      div[data-testid="stVerticalBlock"] hr { border-color:#CFE6DC; }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown("""
+    <div class="wc-banner">
+      <h1>⚽ Quiniela Mundial 2026</h1>
+      <p>11 de junio – 19 de julio · 12 grupos · 48 selecciones</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 def main():
     if not check_password():
         return
     init_state()
     sidebar()
-    st.title("Quiniela Mundial 2026")
+    inject_theme()
 
     tabs = st.tabs(["Grupos", "Posiciones", "Ronda de 32", "Octavos",
                     "Cuartos", "Semifinales", "Tercer Lugar", "Final", "Compartir"])
