@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T14:54:57",
+  "updated": "2026-06-17T14:57:31",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -254,6 +254,17 @@
       "t4": "",
       "v4": "",
       "marcador": "3-0"
+    },
+    "67": {
+      "t1": "Gol de Kane?",
+      "v1": "Si",
+      "t2": "Marcador al medio tiempo",
+      "v2": "0 - 0",
+      "t3": "Habrá gol de cabeza?",
+      "v3": "No",
+      "t4": "",
+      "v4": "",
+      "marcador": "1 - 0"
     }
   }
 }
