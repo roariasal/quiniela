@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T15:41:14",
+  "updated": "2026-06-17T15:41:28",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -233,7 +233,8 @@
     "77": "Francia",
     "78": "Senegal",
     "79": "Chequia",
-    "80": "Inglaterra"
+    "80": "Inglaterra",
+    "83": "Colombia"
   },
   "variables": {
     "1": {
