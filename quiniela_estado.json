@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-18T16:19:01",
+  "updated": "2026-06-18T16:21:17",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -316,6 +316,17 @@
       "t4": "",
       "v4": "",
       "marcador": "3-0"
+    },
+    "10": {
+      "t1": "Over de 4 amarillas",
+      "v1": "Si",
+      "t2": "Goles de tiro libre",
+      "v2": "No",
+      "t3": "Gol entre el minuto 60 y 70. Vale doble",
+      "v3": "Si",
+      "t4": "",
+      "v4": "",
+      "marcador": "2-1"
     }
   }
 }
