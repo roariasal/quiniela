@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-18T16:21:17",
+  "updated": "2026-06-18T16:24:20",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -327,6 +327,17 @@
       "t4": "",
       "v4": "",
       "marcador": "2-1"
+    },
+    "4": {
+      "t1": "Habrá grito de puto?",
+      "v1": "No",
+      "t2": "Marcador al medio tiempo",
+      "v2": "0-1",
+      "t3": "Gol entre el minuto 35 y 45. vale doble",
+      "v3": "Si",
+      "t4": "Expulsion DT",
+      "v4": "No",
+      "marcador": "2-2"
     }
   }
 }
