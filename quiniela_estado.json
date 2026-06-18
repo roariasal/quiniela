@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-17T23:43:55",
+  "updated": "2026-06-18T16:17:55",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -252,15 +252,15 @@
       "marcador": "3-1"
     },
     "3": {
-      "t1": "Postes en los ultimos 20min",
-      "v1": "no",
-      "t2": "numero de intervenciones del VAR +- 1",
-      "v2": "3",
-      "t3": "Goles en tiro de esquina",
-      "v3": "1",
-      "t4": "Over de 3 goles",
-      "v4": "no",
-      "marcador": "1-1"
+      "t1": "Habrá gol anulado por el VAR?",
+      "v1": "SI",
+      "t2": "Habrá autogol?",
+      "v2": "No",
+      "t3": "Over de 2 goles en primer tiempo",
+      "v3": "no",
+      "t4": "",
+      "v4": "",
+      "marcador": "2-0"
     },
     "66": {
       "t1": "Gol en los primeros 13 minutos si o no",
