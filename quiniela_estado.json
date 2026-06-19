@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-19T15:40:24",
+  "updated": "2026-06-19T15:47:43",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -349,6 +349,17 @@
       "t4": "",
       "v4": "",
       "marcador": "3-1"
+    },
+    "15": {
+      "t1": "Marcador al Medio tiempo",
+      "v1": "2-0",
+      "t2": "Goles en el segundo tiempo, cuantos? vale doble",
+      "v2": "1",
+      "t3": "Over de 4 goles, si o no",
+      "v3": "No",
+      "t4": "",
+      "v4": "",
+      "marcador": "3-0"
     }
   }
 }
