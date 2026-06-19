@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-18T16:24:20",
+  "updated": "2026-06-19T15:40:24",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -338,6 +338,17 @@
       "t4": "Expulsion DT",
       "v4": "No",
       "marcador": "2-2"
+    },
+    "22": {
+      "t1": "Gol entre el minuto 81 y 90 Vale Triple",
+      "v1": "Si",
+      "t2": "Tarjetas Rojas",
+      "v2": "No",
+      "t3": "Jugará Australia con uniforme Verde/rosa?",
+      "v3": "Verde",
+      "t4": "",
+      "v4": "",
+      "marcador": "3-1"
     }
   }
 }
