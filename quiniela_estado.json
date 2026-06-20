@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-20T19:13:20",
+  "updated": "2026-06-20T19:18:05",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -371,6 +371,17 @@
       "t4": "",
       "v4": "",
       "marcador": "4-1"
+    },
+    "26": {
+      "t1": "Marcador al minuto 38",
+      "v1": "0-2",
+      "t2": "Goles de tiro libre",
+      "v2": "no, 0",
+      "t3": "Over de 5 amarillas",
+      "v3": "no",
+      "t4": "",
+      "v4": "",
+      "marcador": "0-3"
     }
   }
 }
