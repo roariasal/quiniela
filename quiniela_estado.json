@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-19T15:47:43",
+  "updated": "2026-06-20T19:13:06",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -360,6 +360,17 @@
       "t4": "",
       "v4": "",
       "marcador": "3-0"
+    },
+    "25": {
+      "t1": "Goles de Cabeza en el primer tiempo",
+      "v1": "Si",
+      "t2": "Over de 4 goles",
+      "v2": "Si",
+      "t3": "Gol de algun defensa",
+      "v3": "No",
+      "t4": "",
+      "v4": "",
+      "marcador": "3-1"
     }
   }
 }
