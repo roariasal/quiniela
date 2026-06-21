@@ -69,21 +69,16 @@ def compute():
 # VALOR que predice el jugador. Estructura fija: v1..v4 + marcador.
 # ----------------------------------------------------------------------
 def _variable_field(n, idx, v):
-    """Renderiza 'Variable N :  [titulo]' y debajo el campo de valor.
-    Devuelve (titulo, valor)."""
+    """Renderiza el título y el valor de una variable, apilados verticalmente
+    (funciona bien en móvil y escritorio). Devuelve (titulo, valor)."""
     tk, vk = f"t{idx}", f"v{idx}"
-    lab, fld = st.columns([0.42, 0.58])
-    with lab:
-        st.markdown(f"**Variable {idx}** :")
-    with fld:
-        titulo = st.text_input(
-            f"titulo_{idx}", value=v.get(tk, ""), key=f"{tk}_{n}",
-            label_visibility="collapsed",
-            placeholder="título (ej. Goleador)")
+    titulo = st.text_input(
+        f"Variable {idx} — título", value=v.get(tk, ""), key=f"{tk}_{n}",
+        placeholder="ej. Goleador")
     valor = st.text_input(
-        f"valor_{idx}", value=v.get(vk, ""), key=f"{vk}_{n}",
-        label_visibility="collapsed",
-        placeholder=f"tu predicción para {titulo}" if titulo else "tu predicción")
+        f"Variable {idx} — tu predicción", value=v.get(vk, ""), key=f"{vk}_{n}",
+        placeholder=f"tu predicción para {titulo}" if titulo else "tu predicción",
+        label_visibility="collapsed")
     return titulo, valor
 
 
@@ -97,22 +92,18 @@ def variable_panel(match_n, titulo_partido, subtitulo=""):
     st.caption("Escribe el título de cada variable (lo que pide el organizador "
                "ese día) y debajo tu predicción.")
 
-    c1, c2 = st.columns(2)
-    with c1:
-        t1, v1 = _variable_field(n, 1, v)
-        st.write("")
-        t2, v2 = _variable_field(n, 2, v)
-    with c2:
-        t3, v3 = _variable_field(n, 3, v)
-        st.write("")
-        t4, v4 = _variable_field(n, 4, v)
+    # Layout apilado: una variable debajo de otra. En escritorio Streamlit lo
+    # muestra cómodo; en móvil evita columnas estrechas donde no se puede teclear.
+    t1, v1 = _variable_field(n, 1, v)
+    t2, v2 = _variable_field(n, 2, v)
+    t3, v3 = _variable_field(n, 3, v)
+    t4, v4 = _variable_field(n, 4, v)
 
-    st.markdown("**Marcador** :")
     marcador = st.text_input("Marcador", value=v.get("marcador", ""),
-                             key=f"mar_{n}", placeholder="ej. 2-1",
-                             label_visibility="collapsed")
+                             key=f"mar_{n}", placeholder="ej. 2-1")
 
-    if st.button("💾 Guardar variables", key=f"save_{n}", type="primary"):
+    if st.button("💾 Guardar variables", key=f"save_{n}", type="primary",
+                 width='stretch'):
         d["variables"][n] = {
             "t1": t1, "v1": v1, "t2": t2, "v2": v2,
             "t3": t3, "v3": v3, "t4": t4, "v4": v4,
@@ -139,40 +130,47 @@ def tab_grupos():
     grupos = sorted(GROUPS.keys())
     sel_group = st.selectbox("Grupo", grupos, format_func=lambda g: f"Grupo {g}")
 
-    left, right = st.columns([1, 1])
-
-    with left:
-        st.markdown(f"##### Partidos · Grupo {sel_group}")
-        for m in [x for x in GROUP_MATCHES if x["group"] == sel_group]:
-            n = str(m["n"])
-            cur = d["group_results"].get(n, {})
-            label = f"**#{m['n']}** · {with_flag(m['local'])} vs {with_flag(m['visit'])}  \n_{m['fecha']} · {m['sede']}_"
-            st.markdown(label)
-            cols = st.columns([1, 1, 1, 1.4])
-            outcome = cur.get("outcome")
-            opts = [("1", f"1 · {flag(m['local'])}"), ("X", "X · Empate"), ("2", f"2 · {flag(m['visit'])}")]
-            for i, (code, txt) in enumerate(opts):
-                with cols[i]:
-                    btype = "primary" if outcome == code else "secondary"
-                    if st.button(code, key=f"out_{n}_{code}", type=btype, width='stretch'):
-                        d["group_results"].setdefault(n, {})
-                        d["group_results"][n]["outcome"] = code
-                        autosave()
+    # Si hay un partido seleccionado, mostrar el panel de captura a ancho completo
+    # ARRIBA (clave para móvil: nada de columnas laterales estrechas).
+    sel = st.session_state.selected
+    if sel and sel[0] == "grupo":
+        m = next((x for x in GROUP_MATCHES if str(x["n"]) == sel[1]), None)
+        if m and m["group"] == sel_group:
+            with st.container(border=True):
+                cc1, cc2 = st.columns([0.85, 0.15])
+                with cc2:
+                    if st.button("✕", key="close_var_g", help="Cerrar"):
+                        st.session_state.selected = None
                         st.rerun()
-            with cols[3]:
-                if st.button("Variables ▸", key=f"selg_{n}", width='stretch'):
-                    st.session_state.selected = ("grupo", n)
-                    st.rerun()
+                variable_panel(m["n"], f"#{m['n']} · {with_flag(m['local'])} vs {with_flag(m['visit'])}",
+                               f"{m['fecha']} · {m['sede']}")
             st.divider()
 
-    with right:
-        sel = st.session_state.selected
-        if sel and sel[0] == "grupo":
-            m = next(x for x in GROUP_MATCHES if str(x["n"]) == sel[1])
-            variable_panel(m["n"], f"#{m['n']} · {with_flag(m['local'])} vs {with_flag(m['visit'])}",
-                           f"{m['fecha']} · {m['sede']}")
-        else:
-            st.info("Selecciona **Variables ▸** en un partido para capturar las variables del día.")
+    st.markdown(f"##### Partidos · Grupo {sel_group}")
+    for m in [x for x in GROUP_MATCHES if x["group"] == sel_group]:
+        n = str(m["n"])
+        cur = d["group_results"].get(n, {})
+        label = f"**#{m['n']}** · {with_flag(m['local'])} vs {with_flag(m['visit'])}  \n_{m['fecha']} · {m['sede']}_"
+        st.markdown(label)
+        cols = st.columns([1, 1, 1, 1.4])
+        outcome = cur.get("outcome")
+        opts = [("1", f"1 · {flag(m['local'])}"), ("X", "X · Empate"), ("2", f"2 · {flag(m['visit'])}")]
+        for i, (code, txt) in enumerate(opts):
+            with cols[i]:
+                btype = "primary" if outcome == code else "secondary"
+                if st.button(code, key=f"out_{n}_{code}", type=btype, width='stretch'):
+                    d["group_results"].setdefault(n, {})
+                    d["group_results"][n]["outcome"] = code
+                    autosave()
+                    st.rerun()
+        with cols[3]:
+            active = sel and sel[0] == "grupo" and sel[1] == n
+            if st.button("📋 Variables" + (" ✓" if active else ""),
+                         key=f"selg_{n}", width='stretch',
+                         type="primary" if active else "secondary"):
+                st.session_state.selected = ("grupo", n)
+                st.rerun()
+        st.divider()
 
 
 # ----------------------------------------------------------------------
@@ -221,43 +219,48 @@ def tab_eliminatoria(round_code):
     if round_code == "R32":
         _third_assignment_ui(standings)
 
-    left, right = st.columns([1, 1])
-    with left:
-        for b in matches:
-            n = str(b["n"])
-            t1 = with_flag(b["t1"]) if b["t1"] else f"⟨{b['t1_raw']}⟩"
-            t2 = with_flag(b["t2"]) if b["t2"] else f"⟨{b['t2_raw']}⟩"
-            st.markdown(f"**#{b['n']}** · {t1} vs {t2}  \n_{b['fecha']} · {b['sede']}_")
-
-            if b["resolved"]:
-                cols = st.columns([1.3, 1.3, 1])
-                win = b["winner"]
-                with cols[0]:
-                    bt = "primary" if win == b["t1"] else "secondary"
-                    if st.button(f"🏆 {with_flag(b['t1'])}", key=f"w1_{n}", type=bt, width='stretch'):
-                        d["ko_winners"][n] = b["t1"]; autosave(); st.rerun()
-                with cols[1]:
-                    bt = "primary" if win == b["t2"] else "secondary"
-                    if st.button(f"🏆 {with_flag(b['t2'])}", key=f"w2_{n}", type=bt, width='stretch'):
-                        d["ko_winners"][n] = b["t2"]; autosave(); st.rerun()
-                with cols[2]:
-                    if st.button("Variables ▸", key=f"selk_{n}", width='stretch'):
-                        st.session_state.selected = ("ko", n); st.rerun()
-            else:
-                st.caption("⏳ Faltan resultados previos para definir este cruce.")
-            st.divider()
-
-    with right:
-        sel = st.session_state.selected
-        if sel and sel[0] == "ko":
-            b = bmap.get(sel[1])
-            if b:
+    # Panel de captura a ancho completo arriba si hay partido de esta ronda seleccionado
+    sel = st.session_state.selected
+    if sel and sel[0] == "ko":
+        b = bmap.get(sel[1])
+        if b and b["round"] == round_code:
+            with st.container(border=True):
+                cc1, cc2 = st.columns([0.85, 0.15])
+                with cc2:
+                    if st.button("✕", key="close_var_k", help="Cerrar"):
+                        st.session_state.selected = None
+                        st.rerun()
                 t1 = with_flag(b["t1"]) if b["t1"] else b["t1_raw"]
                 t2 = with_flag(b["t2"]) if b["t2"] else b["t2_raw"]
                 variable_panel(b["n"], f"#{b['n']} · {t1} vs {t2}",
                                f"{b['fecha']} · {b['sede']}")
+            st.divider()
+
+    for b in matches:
+        n = str(b["n"])
+        t1 = with_flag(b["t1"]) if b["t1"] else f"⟨{b['t1_raw']}⟩"
+        t2 = with_flag(b["t2"]) if b["t2"] else f"⟨{b['t2_raw']}⟩"
+        st.markdown(f"**#{b['n']}** · {t1} vs {t2}  \n_{b['fecha']} · {b['sede']}_")
+
+        if b["resolved"]:
+            cols = st.columns([1.3, 1.3, 1])
+            win = b["winner"]
+            with cols[0]:
+                bt = "primary" if win == b["t1"] else "secondary"
+                if st.button(f"🏆 {with_flag(b['t1'])}", key=f"w1_{n}", type=bt, width='stretch'):
+                    d["ko_winners"][n] = b["t1"]; autosave(); st.rerun()
+            with cols[1]:
+                bt = "primary" if win == b["t2"] else "secondary"
+                if st.button(f"🏆 {with_flag(b['t2'])}", key=f"w2_{n}", type=bt, width='stretch'):
+                    d["ko_winners"][n] = b["t2"]; autosave(); st.rerun()
+            with cols[2]:
+                active = sel and sel[0] == "ko" and sel[1] == n
+                if st.button("📋" + (" ✓" if active else ""), key=f"selk_{n}",
+                             width='stretch', type="primary" if active else "secondary"):
+                    st.session_state.selected = ("ko", n); st.rerun()
         else:
-            st.info("Selecciona **Variables ▸** en un partido para capturar las variables del día.")
+            st.caption("⏳ Faltan resultados previos para definir este cruce.")
+        st.divider()
 
 
 def _third_assignment_ui(standings):
@@ -370,6 +373,155 @@ def sidebar():
             st.sidebar.error(f"No se pudo importar: {e}")
 
 
+def _match_n_for_real(item):
+    """Encuentra el número de partido de grupo de la app que corresponde a un
+    partido real (por par de equipos), para enlazar variables/predicción."""
+    for gm in GROUP_MATCHES:
+        if gm["local"] == item["team1"] and gm["visit"] == item["team2"]:
+            return str(gm["n"])
+    return None
+
+
+def tab_en_vivo():
+    import live_data
+    d = get()
+    st.subheader("En Vivo")
+    st.caption("Partidos en curso ahora (por fecha y hora), con tus variables al lado. "
+               "Los datos reales vienen de openfootball (se actualizan ~1 vez al día).")
+
+    if st.button("🔄 Actualizar datos", key="refresh_live"):
+        live_data.fetch_real_matches(force=True)
+        st.rerun()
+
+    try:
+        lu = live_data.live_and_upcoming()
+    except Exception as e:
+        st.error(f"No se pudieron cargar los datos en vivo: {e}")
+        return
+
+    en_vivo = lu["en_vivo"]
+    if not en_vivo:
+        st.info("No hay partidos en curso en este momento.")
+    for m in en_vivo:
+        _render_live_match(m, d, en_vivo=True)
+
+    st.divider()
+    st.markdown("##### Próximos partidos")
+    for m in lu["proximos"][:5]:
+        when = m["start"].strftime("%d %b · %H:%M UTC") if m["start"] else m.get("date", "")
+        st.markdown(f"{with_flag(m['team1'])} vs {with_flag(m['team2'])} — _{when}_")
+
+    if lu["recientes"]:
+        st.divider()
+        st.markdown("##### Últimos resultados")
+        for m in lu["recientes"][:5]:
+            gl, gv = m["score"]
+            sc = f"{gl}-{gv}" if gl is not None else "—"
+            st.markdown(f"{with_flag(m['team1'])} **{sc}** {with_flag(m['team2'])}")
+
+
+def _render_live_match(m, d, en_vivo=False):
+    with st.container(border=True):
+        gl, gv = m["score"]
+        sc = f"{gl} - {gv}" if gl is not None else "vs"
+        badge = "🔴 EN VIVO" if en_vivo else ""
+        st.markdown(f"### {with_flag(m['team1'])}  {sc}  {with_flag(m['team2'])}  {badge}")
+        info = " · ".join(x for x in [m.get("group"), m.get("ground"), m.get("time")] if x)
+        if info:
+            st.caption(info)
+        # goleadores reales si hay
+        goals = []
+        for g in (m.get("goals1") or []):
+            goals.append(f"⚽ {g.get('name','')} {g.get('minute','')}'")
+        for g in (m.get("goals2") or []):
+            goals.append(f"{g.get('name','')} {g.get('minute','')}' ⚽")
+        if goals:
+            st.caption(" · ".join(goals))
+
+        # tus variables/predicción para este partido
+        n = _match_n_for_real(m)
+        if n:
+            pred = (d["group_results"].get(n) or {}).get("outcome")
+            var = d["variables"].get(n) or {}
+            cols = st.columns(2)
+            with cols[0]:
+                st.markdown("**Tu predicción**")
+                if pred:
+                    txt = {"1": m["team1"], "2": m["team2"], "X": "Empate"}[pred]
+                    st.markdown(f"{pred} · {txt}")
+                else:
+                    st.caption("Sin predicción")
+                if var.get("marcador"):
+                    st.markdown(f"Marcador: **{var['marcador']}**")
+            with cols[1]:
+                st.markdown("**Tus variables**")
+                any_v = False
+                for i in range(1, 5):
+                    t = (var.get(f"t{i}") or "").strip()
+                    val = (var.get(f"v{i}") or "").strip()
+                    if t or val:
+                        st.markdown(f"• {t or 'Variable'}: {val or '—'}")
+                        any_v = True
+                if not any_v:
+                    st.caption("Sin variables")
+        else:
+            st.caption("Este partido no está en tu cuadro de grupos.")
+
+
+def tab_reales():
+    import live_data
+    d = get()
+    st.subheader("Tablas Reales y Analíticas")
+    st.caption("Datos reales del Mundial (openfootball). Compara contra tus pronósticos.")
+
+    if st.button("🔄 Actualizar datos", key="refresh_real"):
+        live_data.fetch_real_matches(force=True)
+        st.rerun()
+
+    try:
+        real = live_data.real_standings()
+        acc = live_data.accuracy(d["group_results"])
+    except Exception as e:
+        st.error(f"No se pudieron cargar los datos reales: {e}")
+        return
+
+    # Analíticas de aciertos
+    st.markdown("### 🎯 Tus aciertos")
+    if acc["total"] == 0:
+        st.info("Aún no hay partidos jugados que coincidan con tus predicciones.")
+    else:
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Partidos evaluados", acc["total"])
+        c2.metric("Aciertos", acc["aciertos"])
+        c3.metric("% de acierto", f"{acc['pct']:.0f}%")
+        with st.expander("Detalle de aciertos"):
+            table = [{"#": x["n"], "Partido": f"{x['local']} vs {x['visit']}",
+                      "Tu pred.": x["pred"], "Real": x["real"],
+                      "Marcador": x["score"], "✓": "✅" if x["ok"] else "❌"}
+                     for x in acc["detalle"]]
+            st.dataframe(table, hide_index=True, width='stretch')
+
+    st.divider()
+    # Tabla real vs pronosticada
+    st.markdown("### 📊 Tabla real por grupo")
+    pron, _ = compute()  # tabla pronosticada del usuario
+    grupos = sorted(real.keys())
+    sel = st.selectbox("Grupo", grupos, format_func=lambda g: f"Grupo {g}", key="real_grp")
+    cols = st.columns(2)
+    with cols[0]:
+        st.markdown("**Real**")
+        rt = [{"Pos": i+1, "Equipo": with_flag(r["team"]), "PJ": r["PJ"],
+               "Pts": r["PTS"], "DG": r["DG"], "GF": r["GF"]}
+              for i, r in enumerate(real[sel])]
+        st.dataframe(rt, hide_index=True, width='stretch')
+    with cols[1]:
+        st.markdown("**Tu pronóstico**")
+        pt = [{"Pos": i+1, "Equipo": with_flag(r["team"]), "PJ": r["PJ"],
+               "Pts": r["PTS"], "DG": r["DG"], "GF": r["GF"]}
+              for i, r in enumerate(pron[sel])]
+        st.dataframe(pt, hide_index=True, width='stretch')
+
+
 def _secret(key, default=None):
     try:
         return st.secrets[key]
@@ -429,17 +581,20 @@ def main():
     sidebar()
     inject_theme()
 
-    tabs = st.tabs(["Grupos", "Posiciones", "Ronda de 32", "Octavos",
-                    "Cuartos", "Semifinales", "Tercer Lugar", "Final", "Compartir"])
-    with tabs[0]: tab_grupos()
-    with tabs[1]: tab_posiciones()
-    with tabs[2]: tab_eliminatoria("R32")
-    with tabs[3]: tab_eliminatoria("R16")
-    with tabs[4]: tab_eliminatoria("QF")
-    with tabs[5]: tab_eliminatoria("SF")
-    with tabs[6]: tab_eliminatoria("P3")
-    with tabs[7]: tab_eliminatoria("F")
-    with tabs[8]: tab_compartir()
+    tabs = st.tabs(["🔴 En Vivo", "📊 Tablas Reales", "Grupos", "Posiciones",
+                    "Ronda de 32", "Octavos", "Cuartos", "Semifinales",
+                    "Tercer Lugar", "Final", "Compartir"])
+    with tabs[0]: tab_en_vivo()
+    with tabs[1]: tab_reales()
+    with tabs[2]: tab_grupos()
+    with tabs[3]: tab_posiciones()
+    with tabs[4]: tab_eliminatoria("R32")
+    with tabs[5]: tab_eliminatoria("R16")
+    with tabs[6]: tab_eliminatoria("QF")
+    with tabs[7]: tab_eliminatoria("SF")
+    with tabs[8]: tab_eliminatoria("P3")
+    with tabs[9]: tab_eliminatoria("F")
+    with tabs[10]: tab_compartir()
 
 
 if __name__ == "__main__":
