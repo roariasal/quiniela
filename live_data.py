@@ -226,3 +226,36 @@ def accuracy(group_results):
         })
     pct = (aciertos / total * 100) if total else 0.0
     return {"total": total, "aciertos": aciertos, "pct": pct, "detalle": detalle}
+
+
+# ---------------------------------------------------------------------------
+# Formato de hora en zona Ciudad de México (UTC-6, sin horario de verano)
+# ---------------------------------------------------------------------------
+CDMX_OFFSET = -6  # horas respecto a UTC
+
+_MESES = ["ene", "feb", "mar", "abr", "may", "jun",
+          "jul", "ago", "sep", "oct", "nov", "dic"]
+
+
+def to_cdmx(utc_dt):
+    """Convierte un datetime UTC a hora de Ciudad de México (UTC-6)."""
+    if utc_dt is None:
+        return None
+    return utc_dt + dt.timedelta(hours=CDMX_OFFSET)
+
+
+def fmt_cdmx(utc_dt, with_date=True):
+    """Formatea un datetime UTC como hora CDMX legible.
+    Ej: '18 jun · 13:00 (CDMX)' o '13:00 (CDMX)'."""
+    local = to_cdmx(utc_dt)
+    if local is None:
+        return ""
+    hora = local.strftime("%H:%M")
+    if with_date:
+        return f"{local.day} {_MESES[local.month - 1]} · {hora} (CDMX)"
+    return f"{hora} (CDMX)"
+
+
+def now_cdmx():
+    """Hora actual en CDMX (para mostrar)."""
+    return to_cdmx(dt.datetime.utcnow())
