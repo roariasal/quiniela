@@ -259,3 +259,89 @@ def fmt_cdmx(utc_dt, with_date=True):
 def now_cdmx():
     """Hora actual en CDMX (para mostrar)."""
     return to_cdmx(dt.datetime.utcnow())
+
+
+# ---------------------------------------------------------------------------
+# Pronóstico estadístico (sin IA, sin key) basado en datos reales del torneo
+# ---------------------------------------------------------------------------
+def _team_form(team, standings_by_team):
+    """Devuelve métricas de forma del equipo a partir de la tabla real."""
+    r = standings_by_team.get(team)
+    if not r or r["PJ"] == 0:
+        return None
+    pj = r["PJ"]
+    return {
+        "PJ": pj, "PTS": r["PTS"], "DG": r["DG"], "GF": r["GF"], "GC": r["GC"],
+        "G": r["G"], "E": r["E"], "P": r["P"],
+        "ppp": r["PTS"] / pj,          # puntos por partido
+        "gf_pp": r["GF"] / pj,         # goles a favor por partido
+        "gc_pp": r["GC"] / pj,         # goles en contra por partido
+    }
+
+
+def predict_match(team1, team2):
+    """Pronóstico estadístico de un cruce a partir de la forma real de ambos
+    equipos en el torneo. Devuelve dict con probabilidades estimadas, marcador
+    proyectado y el detalle de las métricas (transparente, sin caja negra).
+    Si algún equipo no tiene partidos jugados, lo indica."""
+    st = real_standings()
+    by_team = {r["team"]: r for rows in st.values() for r in rows}
+    f1 = _team_form(team1, by_team)
+    f2 = _team_form(team2, by_team)
+
+    res = {"team1": team1, "team2": team2, "f1": f1, "f2": f2,
+           "suficiente": bool(f1 and f2)}
+    if not (f1 and f2):
+        return res
+
+    # Fuerza relativa: combina puntos/partido (peso 2), DG/partido (peso 1.5),
+    # y diferencial de goles esperados. Es una heurística simple y explicable.
+    dg1_pp = f1["DG"] / f1["PJ"]
+    dg2_pp = f2["DG"] / f2["PJ"]
+    score1 = f1["ppp"] * 2.0 + dg1_pp * 1.5
+    score2 = f2["ppp"] * 2.0 + dg2_pp * 1.5
+
+    # Marcador proyectado: promedio entre ataque propio y defensa rival
+    g1 = (f1["gf_pp"] + f2["gc_pp"]) / 2.0
+    g2 = (f2["gf_pp"] + f1["gc_pp"]) / 2.0
+
+    # Convertir diferencia de fuerza en probabilidades (logística suave)
+    import math
+    diff = score1 - score2
+    p1 = 1.0 / (1.0 + math.exp(-diff * 0.9))   # prob. de que gane team1
+    # margen de empate: cuanto más parejo, más probable el empate
+    parity = math.exp(-abs(diff) * 1.2)
+    p_draw = 0.28 * parity + 0.10
+    # normalizar
+    p_win1 = p1 * (1 - p_draw)
+    p_win2 = (1 - p1) * (1 - p_draw)
+    total = p_win1 + p_win2 + p_draw
+    p_win1, p_win2, p_draw = p_win1/total, p_win2/total, p_draw/total
+
+    if p_win1 > p_win2 and p_win1 > p_draw:
+        favorito, signo = team1, "1"
+    elif p_win2 > p_win1 and p_win2 > p_draw:
+        favorito, signo = team2, "2"
+    else:
+        favorito, signo = "Empate", "X"
+
+    res.update({
+        "prob_1": round(p_win1 * 100), "prob_x": round(p_draw * 100),
+        "prob_2": round(p_win2 * 100),
+        "marcador": f"{round(g1)}-{round(g2)}",
+        "favorito": favorito, "signo": signo,
+        "score1": round(score1, 2), "score2": round(score2, 2),
+    })
+    return res
+
+
+def upcoming_matches(limit=20, now_utc=None):
+    """Lista de próximos partidos del calendario real (no jugados aún),
+    con equipos resueltos cuando es posible. Para el selector de pronóstico."""
+    lu = live_and_upcoming(now_utc=now_utc)
+    out = []
+    for m in lu["proximos"][:limit]:
+        # solo cruces con equipos reales conocidos (no 'Winner M..')
+        if m["team1"] in EN_TO_ES.values() and m["team2"] in EN_TO_ES.values():
+            out.append(m)
+    return out
