@@ -556,6 +556,72 @@ def tab_reales():
               for i, r in enumerate(pron[sel])]
         st.dataframe(pt, hide_index=True, width='stretch')
 
+    st.divider()
+    _prediction_section(live_data)
+
+
+def _prediction_section(live_data):
+    st.markdown("### 🔮 Pronóstico de un partido")
+    st.caption("Estimación estadística basada en la forma real de cada equipo en "
+               "el torneo (puntos, goles, diferencia). No usa IA — es un cálculo "
+               "transparente. El fútbol es impredecible: tómalo como referencia.")
+
+    try:
+        proximos = live_data.upcoming_matches(limit=20)
+    except Exception as e:
+        st.error(f"No se pudieron cargar los próximos partidos: {e}")
+        return
+
+    if not proximos:
+        st.info("No hay próximos partidos con equipos definidos para pronosticar.")
+        return
+
+    def _lbl(m):
+        cuando = live_data.fmt_cdmx(m["start"]) if m.get("start") else ""
+        return f"{m['team1']} vs {m['team2']} — {cuando}"
+
+    idx = st.selectbox("Próximo partido", range(len(proximos)),
+                       format_func=lambda i: _lbl(proximos[i]), key="pred_match")
+    m = proximos[idx]
+
+    if st.button("🔮 Generar pronóstico", type="primary", key="gen_pred"):
+        p = live_data.predict_match(m["team1"], m["team2"])
+        if not p["suficiente"]:
+            faltan = []
+            if not p["f1"]:
+                faltan.append(m["team1"])
+            if not p["f2"]:
+                faltan.append(m["team2"])
+            st.warning("Datos insuficientes para pronosticar: "
+                       + ", ".join(faltan) + " aún no tiene(n) partidos jugados "
+                       "en el torneo. El pronóstico se puede hacer una vez que "
+                       "ambos equipos hayan jugado.")
+            return
+
+        st.markdown(f"#### {with_flag(m['team1'])} vs {with_flag(m['team2'])}")
+        c1, c2, c3 = st.columns(3)
+        c1.metric(f"Gana {m['team1']}", f"{p['prob_1']}%")
+        c2.metric("Empate", f"{p['prob_x']}%")
+        c3.metric(f"Gana {m['team2']}", f"{p['prob_2']}%")
+
+        fav = p["favorito"]
+        st.success(f"**Favorito: {fav}** · Marcador proyectado: **{p['marcador']}**")
+
+        with st.expander("¿Cómo se calculó? (transparencia)"):
+            f1, f2 = p["f1"], p["f2"]
+            st.markdown(
+                f"Se compara la **forma real** de cada equipo en el torneo:\n\n"
+                f"- **{m['team1']}**: {f1['PJ']} PJ · {f1['PTS']} pts "
+                f"({f1['ppp']:.2f}/partido) · DG {f1['DG']:+d} · "
+                f"{f1['gf_pp']:.1f} goles a favor/partido\n"
+                f"- **{m['team2']}**: {f2['PJ']} PJ · {f2['PTS']} pts "
+                f"({f2['ppp']:.2f}/partido) · DG {f2['DG']:+d} · "
+                f"{f2['gf_pp']:.1f} goles a favor/partido\n\n"
+                f"La fuerza relativa combina puntos por partido y diferencia de "
+                f"goles. Índice de fuerza: {p['score1']} vs {p['score2']}. "
+                f"El marcador proyectado promedia el ataque de cada equipo contra "
+                f"la defensa del rival.")
+
 
 def _secret(key, default=None):
     try:
