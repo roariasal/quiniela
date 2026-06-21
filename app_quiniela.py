@@ -128,7 +128,40 @@ def tab_grupos():
     st.caption("Marca tu predicción 1 / X / 2. Tus resultados calculan las posiciones automáticamente.")
 
     grupos = sorted(GROUPS.keys())
-    sel_group = st.selectbox("Grupo", grupos, format_func=lambda g: f"Grupo {g}")
+
+    # Buscador de país: escribe un país y salta a su grupo.
+    team_group = {t: g for g, ts in GROUPS.items() for t in ts}
+    import unicodedata
+
+    def _norm(s):
+        s = (s or "").lower().strip()
+        return "".join(c for c in unicodedata.normalize("NFD", s)
+                       if unicodedata.category(c) != "Mn")
+
+    busqueda = st.text_input("🔎 Buscar país", key="buscar_pais",
+                             placeholder="ej. Brasil, México, Croacia...")
+    grupo_encontrado = None
+    if busqueda.strip():
+        q = _norm(busqueda)
+        # coincidencia por prefijo o contenido
+        matches_found = [(t, g) for t, g in team_group.items()
+                         if q in _norm(t)]
+        if matches_found:
+            # priorizar coincidencia que empieza con la búsqueda
+            matches_found.sort(key=lambda x: (not _norm(x[0]).startswith(q), x[0]))
+            equipo, grupo_encontrado = matches_found[0]
+            otros = [t for t, _ in matches_found[1:]]
+            msg = f"**{with_flag(equipo)}** está en el **Grupo {grupo_encontrado}**"
+            if otros:
+                msg += f" · _(también: {', '.join(otros[:3])})_"
+            st.success(msg)
+        else:
+            st.warning(f"No encontré ningún país que coincida con «{busqueda}».")
+
+    # índice por defecto: el grupo encontrado, si lo hay
+    default_idx = grupos.index(grupo_encontrado) if grupo_encontrado in grupos else 0
+    sel_group = st.selectbox("Grupo", grupos, index=default_idx,
+                             format_func=lambda g: f"Grupo {g}")
 
     # Si hay un partido seleccionado, mostrar el panel de captura a ancho completo
     # ARRIBA (clave para móvil: nada de columnas laterales estrechas).
@@ -408,7 +441,7 @@ def tab_en_vivo():
     st.divider()
     st.markdown("##### Próximos partidos")
     for m in lu["proximos"][:5]:
-        when = m["start"].strftime("%d %b · %H:%M UTC") if m["start"] else m.get("date", "")
+        when = live_data.fmt_cdmx(m["start"]) if m["start"] else m.get("date", "")
         st.markdown(f"{with_flag(m['team1'])} vs {with_flag(m['team2'])} — _{when}_")
 
     if lu["recientes"]:
@@ -421,12 +454,14 @@ def tab_en_vivo():
 
 
 def _render_live_match(m, d, en_vivo=False):
+    import live_data
     with st.container(border=True):
         gl, gv = m["score"]
         sc = f"{gl} - {gv}" if gl is not None else "vs"
         badge = "🔴 EN VIVO" if en_vivo else ""
         st.markdown(f"### {with_flag(m['team1'])}  {sc}  {with_flag(m['team2'])}  {badge}")
-        info = " · ".join(x for x in [m.get("group"), m.get("ground"), m.get("time")] if x)
+        hora_cdmx = live_data.fmt_cdmx(m.get("start")) if m.get("start") else m.get("time")
+        info = " · ".join(x for x in [m.get("group"), m.get("ground"), hora_cdmx] if x)
         if info:
             st.caption(info)
         # goleadores reales si hay
