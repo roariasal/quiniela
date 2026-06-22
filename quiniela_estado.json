@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-20T19:18:05",
+  "updated": "2026-06-22T18:25:45",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -382,6 +382,17 @@
       "t4": "",
       "v4": "",
       "marcador": "0-3"
+    },
+    "54": {
+      "t1": "Más de 2 goles de Mbappe. Sí o no.",
+      "v1": "Si",
+      "t2": "Gol en los primeros 6 minutos. Sí o no",
+      "v2": "No",
+      "t3": "Over de 6 goles totales. Sí o no.",
+      "v3": "no",
+      "t4": "",
+      "v4": "",
+      "marcador": "1 - 4"
     }
   }
 }
