@@ -168,6 +168,7 @@ def live_and_upcoming(now_utc=None, live_window_min=120):
             "team1": _es(m.get("team1")), "team2": _es(m.get("team2")),
             "raw1": m.get("team1"), "raw2": m.get("team2"),
             "start": start, "score": (gl, gv),
+            "ht": (m.get("score") or {}).get("ht"),
             "group": m.get("group"), "round": m.get("round"),
             "ground": m.get("ground"), "time": m.get("time"),
             "date": m.get("date"),
@@ -345,3 +346,36 @@ def upcoming_matches(limit=20, now_utc=None):
         if m["team1"] in EN_TO_ES.values() and m["team2"] in EN_TO_ES.values():
             out.append(m)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Mini-resumen de un partido (marcador, medio tiempo, cronología de goles)
+# ---------------------------------------------------------------------------
+def match_summary_live(m):
+    """Arma el resumen de un partido a partir del item de live_and_upcoming.
+    Devuelve dict con marcador, medio tiempo y cronología de goles ordenada.
+    Solo usa datos disponibles (sin tarjetas: la fuente no las tiene)."""
+    gl, gv = m.get("score", (None, None))
+    # medio tiempo: hay que releerlo del match crudo; lo guardamos al construir
+    ht = m.get("ht")  # puede venir o no
+    # cronología combinada de goles, ordenada por minuto
+    crono = []
+    for g in (m.get("goals1") or []):
+        crono.append({"team": m["team1"], "side": 1,
+                      "name": g.get("name", ""), "minute": _min_int(g.get("minute"))})
+    for g in (m.get("goals2") or []):
+        crono.append({"team": m["team2"], "side": 2,
+                      "name": g.get("name", ""), "minute": _min_int(g.get("minute"))})
+    crono.sort(key=lambda x: x["minute"] if x["minute"] is not None else 999)
+    return {
+        "team1": m["team1"], "team2": m["team2"],
+        "gl": gl, "gv": gv, "ht": ht, "crono": crono,
+        "jugado": gl is not None,
+    }
+
+
+def _min_int(v):
+    try:
+        return int(str(v).replace("'", "").split("+")[0])
+    except (TypeError, ValueError):
+        return None
