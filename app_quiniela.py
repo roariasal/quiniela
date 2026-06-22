@@ -447,10 +447,11 @@ def tab_en_vivo():
     if lu["recientes"]:
         st.divider()
         st.markdown("##### Últimos resultados")
-        for m in lu["recientes"][:5]:
+        for m in lu["recientes"][:6]:
             gl, gv = m["score"]
             sc = f"{gl}-{gv}" if gl is not None else "—"
-            st.markdown(f"{with_flag(m['team1'])} **{sc}** {with_flag(m['team2'])}")
+            with st.expander(f"{with_flag(m['team1'])} {sc} {with_flag(m['team2'])}"):
+                _render_live_match(m, d, en_vivo=False)
 
 
 def _render_live_match(m, d, en_vivo=False):
@@ -464,20 +465,32 @@ def _render_live_match(m, d, en_vivo=False):
         info = " · ".join(x for x in [m.get("group"), m.get("ground"), hora_cdmx] if x)
         if info:
             st.caption(info)
-        # goleadores reales si hay
-        goals = []
-        for g in (m.get("goals1") or []):
-            goals.append(f"⚽ {g.get('name','')} {g.get('minute','')}'")
-        for g in (m.get("goals2") or []):
-            goals.append(f"{g.get('name','')} {g.get('minute','')}' ⚽")
-        if goals:
-            st.caption(" · ".join(goals))
+        # mini-resumen: medio tiempo + cronología de goles
+        s = live_data.match_summary_live(m)
+        if s["ht"]:
+            st.caption(f"Medio tiempo: {s['ht'][0]} - {s['ht'][1]}")
+        if s["crono"]:
+            st.markdown("**⚽ Cronología de goles**")
+            for g in s["crono"]:
+                fl = flag(g["team"])
+                minuto = f"{g['minute']}'" if g["minute"] is not None else ""
+                st.markdown(f"{minuto} {fl} {g['name']}")
+        elif s["jugado"]:
+            st.caption("Sin goles registrados.")
 
         # tus variables/predicción para este partido
         n = _match_n_for_real(m)
         if n:
             pred = (d["group_results"].get(n) or {}).get("outcome")
             var = d["variables"].get(n) or {}
+            # ¿voy ganando la quiniela en este partido?
+            if pred and s["jugado"]:
+                real_out = ("1" if s["gl"] > s["gv"]
+                            else ("2" if s["gv"] > s["gl"] else "X"))
+                if pred == real_out:
+                    st.success("✅ Tu predicción va acertando")
+                else:
+                    st.warning("❌ Tu predicción no coincide (por ahora)")
             cols = st.columns(2)
             with cols[0]:
                 st.markdown("**Tu predicción**")
