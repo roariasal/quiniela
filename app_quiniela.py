@@ -116,7 +116,7 @@ def variable_panel(match_n, titulo_partido, subtitulo=""):
         _, bracket = compute()
         entry = export_share.entry_for_match(d, bracket, n)
         if entry:
-            _share_match_ui(entry, d.get("owner", ""))
+            _share_match_ui(entry, d.get("owner", ""), ctx="panel")
 
 
 # ----------------------------------------------------------------------
@@ -332,15 +332,16 @@ def _third_assignment_ui(standings):
 # ----------------------------------------------------------------------
 # TAB: Compartir (JSON WhatsApp)
 # ----------------------------------------------------------------------
-def _share_match_ui(entry, jugador):
-    """Render compartido: imagen PNG + texto WhatsApp para un partido."""
+def _share_match_ui(entry, jugador, ctx="share"):
+    """Render compartido: imagen PNG + texto WhatsApp para un partido.
+    ctx distingue el lugar de llamada para evitar keys duplicadas."""
     import card_render
     png = card_render.png_card(entry, jugador)
     st.image(png, caption=None, width='stretch')
     st.download_button(
         "⬇️ Descargar imagen (PNG)", png,
         file_name=f"quiniela_partido_{entry['n']}.png", mime="image/png",
-        key=f"png_{entry['n']}")
+        key=f"png_{ctx}_{entry['n']}")
     txt = card_render.whatsapp_text(entry, jugador)
     st.markdown("**Texto para WhatsApp** (cópialo):")
     st.code(txt, language=None)
@@ -362,7 +363,7 @@ def tab_compartir():
         return f"#{e['n']} · {e['partido']} ({e['fase']})"
     idx = st.selectbox("Partido", range(len(entries)),
                        format_func=lambda i: _lbl(entries[i]))
-    _share_match_ui(entries[idx], d.get("owner", ""))
+    _share_match_ui(entries[idx], d.get("owner", ""), ctx="compartir")
 
 
 # ----------------------------------------------------------------------
