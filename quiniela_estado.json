@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-23T20:01:13",
+  "updated": "2026-06-23T20:07:03",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -429,14 +429,14 @@
     },
     "70": {
       "t1": "Marcador al medio tiempo. Vale doble",
-      "v1": "0 - 3",
+      "v1": "0 - 2",
       "t2": "Gol entre el minuto 29 y 48. Sí o no.",
       "v2": "Si",
       "t3": "Gol de algún jugador que no sea delantero. Sí o no",
-      "v3": "no",
+      "v3": "Si",
       "t4": "",
       "v4": "",
-      "marcador": ""
+      "marcador": "1 - 3"
     }
   }
 }
