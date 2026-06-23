@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-23T16:34:33",
+  "updated": "2026-06-23T19:45:21",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -415,6 +415,17 @@
       "t4": "",
       "v4": "",
       "marcador": "3 - 0"
+    },
+    "69": {
+      "t1": "¿Cuantos goles totales en los primeros 31 minutos? Vale triple",
+      "v1": "2",
+      "t2": "¿Gol de tiro libre?",
+      "v2": "Si",
+      "t3": "Over de 5 amarillas. Sí o no.",
+      "v3": "Si",
+      "t4": "",
+      "v4": "",
+      "marcador": ""
     }
   }
 }
