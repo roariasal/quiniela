@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-23T20:07:03",
+  "updated": "2026-06-24T01:43:27",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -437,6 +437,17 @@
       "t4": "",
       "v4": "",
       "marcador": "1 - 3"
+    },
+    "63": {
+      "t1": "Amarillas para cuerpo técnico? Si o no",
+      "v1": "Si",
+      "t2": "Cuantos Goles totales",
+      "v2": "3",
+      "t3": "Que equipo cometerá mas faltas?",
+      "v3": "Colombia",
+      "t4": "",
+      "v4": "",
+      "marcador": "2 - 1"
     }
   }
 }
