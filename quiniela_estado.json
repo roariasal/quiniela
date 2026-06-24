@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-24T19:39:15",
+  "updated": "2026-06-24T19:40:22",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -459,6 +459,17 @@
       "t4": "",
       "v4": "",
       "marcador": "0 - 1"
+    },
+    "12": {
+      "t1": "Gol en los primeros 28 minutos",
+      "v1": "",
+      "t2": "Habrá algún expulsado",
+      "v2": "",
+      "t3": "Algún gol después del minuto 88? Vale doble",
+      "v3": "",
+      "t4": "",
+      "v4": "",
+      "marcador": "3 - 0"
     }
   }
 }
