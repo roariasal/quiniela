@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-24T19:43:50",
+  "updated": "2026-06-24T19:45:07",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -492,6 +492,17 @@
       "t4": "",
       "v4": "",
       "marcador": "1 - 3"
+    },
+    "6": {
+      "t1": "Ganador vence por más de 1 gol? Sí o no.",
+      "v1": "si",
+      "t2": "Over de 4 goles totales?",
+      "v2": "Si",
+      "t3": "Gol entre el minuto 45 y 51 (2do. tiempo)? Vale doble",
+      "v3": "No",
+      "t4": "",
+      "v4": "",
+      "marcador": "1 - 4"
     }
   }
 }
