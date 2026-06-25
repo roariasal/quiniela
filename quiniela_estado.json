@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-25T22:48:06",
+  "updated": "2026-06-25T22:54:17",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -547,6 +547,17 @@
       "t4": "",
       "v4": "",
       "marcador": "4 - 2"
+    },
+    "33": {
+      "t1": "Que equipo anota primero",
+      "v1": "Japon",
+      "t2": "Habrá penales marcados",
+      "v2": "No",
+      "t3": "Goles de tiro de esquina máximo, 3 toques totales",
+      "v3": "Si",
+      "t4": "",
+      "v4": "",
+      "marcador": "3 - 2"
     }
   }
 }
