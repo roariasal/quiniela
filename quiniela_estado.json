@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-25T23:15:21",
+  "updated": "2026-06-25T23:16:27",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -569,6 +569,17 @@
       "t4": "",
       "v4": "",
       "marcador": "1 - 1"
+    },
+    "23": {
+      "t1": "Gol de algun delantero",
+      "v1": "Si",
+      "t2": "",
+      "v2": "",
+      "t3": "",
+      "v3": "",
+      "t4": "",
+      "v4": "",
+      "marcador": ""
     }
   }
 }
