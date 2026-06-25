@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-25T22:54:17",
+  "updated": "2026-06-25T23:15:21",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -558,6 +558,17 @@
       "t4": "",
       "v4": "",
       "marcador": "3 - 2"
+    },
+    "24": {
+      "t1": "Gol antes del min 20 si o no",
+      "v1": "No",
+      "t2": "Mas de 4 goles si o no",
+      "v2": "No",
+      "t3": "Algún equipo con mas de 3 amarillas",
+      "v3": "Si",
+      "t4": "",
+      "v4": "",
+      "marcador": "1 - 1"
     }
   }
 }
