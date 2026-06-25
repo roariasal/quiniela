@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-25T18:50:28",
+  "updated": "2026-06-25T18:52:40",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -531,11 +531,11 @@
       "v1": "32",
       "t2": "Over de 4 goles totales. Sí o no",
       "v2": "no",
-      "t3": "",
-      "v3": "",
+      "t3": "Gol en los últimos 9 minutos. Sí o no",
+      "v3": "no",
       "t4": "",
       "v4": "",
-      "marcador": ""
+      "marcador": "2 - 1"
     }
   }
 }
