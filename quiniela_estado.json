@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-25T18:49:20",
+  "updated": "2026-06-25T18:50:28",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -525,6 +525,17 @@
       "t4": "",
       "v4": "",
       "marcador": "0 - 2"
+    },
+    "29": {
+      "t1": "En qué minuto cae el primer gol? Vale triple",
+      "v1": "32",
+      "t2": "Over de 4 goles totales. Sí o no",
+      "v2": "no",
+      "t3": "",
+      "v3": "",
+      "t4": "",
+      "v4": "",
+      "marcador": ""
     }
   }
 }
