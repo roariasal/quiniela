@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-24T19:46:39",
+  "updated": "2026-06-25T18:47:18",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -514,6 +514,17 @@
       "t4": "",
       "v4": "",
       "marcador": "1 - 2"
+    },
+    "30": {
+      "t1": "Gol de Undav. Sí o no.",
+      "v1": "Si",
+      "t2": "¿Marcador en ceros al medio?",
+      "v2": "No",
+      "t3": "¿Qué equipo tendrá más tiros a puerta?",
+      "v3": "Alemania",
+      "t4": "",
+      "v4": "",
+      "marcador": ""
     }
   }
 }
