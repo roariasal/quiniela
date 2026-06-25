@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-25T23:16:27",
+  "updated": "2026-06-25T23:39:03",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -572,14 +572,14 @@
     },
     "23": {
       "t1": "Gol de algun delantero",
-      "v1": "Si",
-      "t2": "",
-      "v2": "",
-      "t3": "",
+      "v1": "Si - Folarin Balogun",
+      "t2": "Marcador al medio tiempo",
+      "v2": "1 - 1",
+      "t3": "Gol después del min 87",
       "v3": "",
       "t4": "",
       "v4": "",
-      "marcador": ""
+      "marcador": "2 - 2"
     }
   }
 }
