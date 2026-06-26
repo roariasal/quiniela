@@ -1,6 +1,6 @@
 {
   "owner": "Rod",
-  "updated": "2026-06-26T15:08:45",
+  "updated": "2026-06-26T15:10:21",
   "group_results": {
     "1": {
       "outcome": "1"
@@ -591,6 +591,17 @@
       "t4": "",
       "v4": "",
       "marcador": "1 - 1"
+    },
+    "52": {
+      "t1": "Over de 5 Goles. Sí o no",
+      "v1": "no",
+      "t2": "⁠Over de 4 goles entre Haaland y Mbappe. Sí o no",
+      "v2": "no",
+      "t3": "Gol después del minuto 81. Sí o no",
+      "v3": "si",
+      "t4": "",
+      "v4": "",
+      "marcador": "3 - 0"
     }
   }
 }
